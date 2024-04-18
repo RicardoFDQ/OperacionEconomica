@@ -17,8 +17,8 @@ module ModuloLecturaBaterias
             cap_energia = 3 * fila[Symbol("Cap")]
             rend = fila[Symbol("Rend")]
             barra = fila[Symbol("BarConexion")]
-            energia_inicial = 0.5 * fila[Symbol("Cap")]
-            energia_final = 0.5 * fila[Symbol("Cap")]
+            energia_inicial = 1.5 * fila[Symbol("Cap")]
+            energia_final = 1.5 * fila[Symbol("Cap")]
             push!(baterias, Bateria(id_bateria, cap_potencia, cap_energia, rend, barra, energia_inicial, energia_final))
         end
         return baterias
