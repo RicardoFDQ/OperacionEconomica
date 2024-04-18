@@ -18,10 +18,10 @@ module ModeloP1
         #------------------------------------------------------------------------------
         # Variables de decisión
 
-        # Potencia generada por generadores [MW]
+        # Potencia generada por generadores en lso blqoues [MW]
         @variable(modelo, generadores[i].p_min <= pg[i = 1:length(generadores), t = 1:length(barras[1].demanda)] <= generadores[i].p_max)
         
-        # Ángulos barras [rad]
+        # Ángulos de las barras en los bloques [rad]
         @variable(modelo, -π <= θ[i = 1:length(barras), t = 1:length(barras[1].demanda)] <= π)
 
 
@@ -38,8 +38,11 @@ module ModeloP1
         # Restricción balance de potencia en barras
         for barra in barras
             for bloque in 1:length(barra.demanda)
-                @constraint(modelo, sum(pg[generador.id, bloque] for generador in generadores_en_barras[barra.id]; init = 0)/100 ==
-                (barra.demanda[bloque]/100) + sum(linea.reactancia^(-1) * (θ[barra.id, bloque] - θ[linea.barra_fin, bloque]) for linea in lineas_out_barras[barra.id]; init = 0)
+                @constraint(modelo, 
+                sum(pg[generador.id, bloque] for generador in generadores_en_barras[barra.id]; init = 0)/100 
+                ==
+                (barra.demanda[bloque]/100)
+                + sum(linea.reactancia^(-1) * (θ[barra.id, bloque] - θ[linea.barra_fin, bloque]) for linea in lineas_out_barras[barra.id]; init = 0)
                 + sum(linea.reactancia^(-1) * (θ[barra.id, bloque] - θ[linea.barra_ini, bloque]) for linea in lineas_in_barras[barra.id]; init = 0))
             end
         end
@@ -52,11 +55,11 @@ module ModeloP1
         end
 
         # Restricción de rampa
-        for generador in generadores
-            for bloque in 1:length(barras[1].demanda) - 1
-                @constraint(modelo, -generador.rampa <= pg[generador.id, bloque] - pg[generador.id, bloque + 1]  <= generador.rampa)
-            end
-        end
+        # for generador in generadores
+        #     for bloque in 1:length(barras[1].demanda) - 1
+        #         @constraint(modelo, -generador.rampa <= pg[generador.id, bloque] - pg[generador.id, bloque + 1]  <= generador.rampa)
+        #     end
+        # end
 
         optimize!(modelo)
 

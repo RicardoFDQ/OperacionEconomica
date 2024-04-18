@@ -4,10 +4,10 @@ module ImprimirResultados
     export imprimir_resultados
 
     # Función que muestra los resultados ordenadamente
-    function imprimir_resultados(modelo, pg, θ, valor_funcion_objetivo; Δd=nothing)
+    function imprimir_resultados(modelo, pg, θ, valor_funcion_objetivo; Δd=nothing, e=nothing, pc=nothing, pd=nothing)
         println("")
         println("")
-        println("-" ^ 125)  # Línea de guiones bajos como delimitador superior
+        println("-" ^ 125)  
         println("Resultados del $modelo:")
         println("_" ^ 125)
         println("Pg del $modelo: ", pg)
@@ -18,8 +18,20 @@ module ImprimirResultados
             println("Δd del $modelo: ", Δd)
             println("_" ^ 125)
         end
+        if e !== nothing
+            println("e del $modelo: ", Array(e))
+            println("_" ^ 125)
+        end
+        if pc !== nothing
+            println("pc del $modelo: ", pc)
+            println("_" ^ 125)
+        end
+        if pd !== nothing
+            println("pd del $modelo: ", pd)
+            println("_" ^ 125)
+        end
         println("Valor de la función objetivo del $modelo: ", valor_funcion_objetivo)
-        println("_" ^ 125)  # Línea de guiones bajos como delimitador inferior
+        println("_" ^ 125)  
         println("")
     end
 end

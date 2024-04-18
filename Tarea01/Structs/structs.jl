@@ -33,9 +33,12 @@ module ModuloStructs
     # Struct que representa a las baterías
     struct Bateria
         id::Int64
-        cap::Int64
+        cap_potencia::Int64
+        cap_energia::Int64
         rend::Float64
         barra::Int64
+        energia_inicial::Float64
+        energia_final::Float64
     end
 
     # Las siguientes sobrecargas de hacen para que cuando se printeen los structs no se

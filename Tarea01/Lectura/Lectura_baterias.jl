@@ -13,10 +13,13 @@ module ModuloLecturaBaterias
         csv_baterias = CSV.read(ruta_archivo, DataFrame; decimal=',')
         for fila in eachrow(csv_baterias)
             id_bateria = fila[Symbol("IdBESS")]
-            cap = fila[Symbol("Cap")]
+            cap_potencia = fila[Symbol("Cap")]
+            cap_energia = 3 * fila[Symbol("Cap")]
             rend = fila[Symbol("Rend")]
             barra = fila[Symbol("BarConexion")]
-            push!(baterias, Bateria(id_bateria, cap, rend, barra))
+            energia_inicial = 0.5 * fila[Symbol("Cap")]
+            energia_final = 0.5 * fila[Symbol("Cap")]
+            push!(baterias, Bateria(id_bateria, cap_potencia, cap_energia, rend, barra, energia_inicial, energia_final))
         end
         return baterias
     end
