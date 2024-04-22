@@ -34,10 +34,9 @@ module ModeloP3
         # Potencia inyectada por batería en los bloques [MW]
         @variable(modelo, 0 <= pd[b = 1:length(baterias), t = 1:length(barras[1].demanda)] <= baterias[b].cap_potencia)
 
-
         #------------------------------------------------------------------------------
         # Función objetivo
-        @objective(modelo, Min, sum(generadores[i].costo * pg[i,t] for i in 1:length(generadores), t in 1:length(barras[1].demanda))) 
+        @objective(modelo, Min, sum(generadores[i].costo * pg[i,t] for i in 1:length(generadores), t in 1:length(barras[1].demanda)))
 
         #------------------------------------------------------------------------------
         # Barra 1 slack
@@ -66,17 +65,11 @@ module ModeloP3
             end
         end
 
-        # Restricción de rampa
-        # for generador in generadores
-        #     for bloque in 1:length(barras[1].demanda) - 1
-        #         @constraint(modelo, -generador.rampa <= pg[generador.id, bloque] - pg[generador.id, bloque + 1]  <= generador.rampa)
-        #     end
-        # end
-
         # Restricción balance potencia baterías
         for bateria in baterias
             for bloque in 1:length(barras[1].demanda)
-                @constraint(modelo, e[bateria.id, bloque] == e[bateria.id, bloque - 1] + bateria.rend * pc[bateria.id, bloque] - pd[bateria.id, bloque]/bateria.rend)
+                @constraint(modelo, e[bateria.id, bloque] == e[bateria.id, bloque - 1]
+                + bateria.rend^(0.5) * pc[bateria.id, bloque] - pd[bateria.id, bloque]/bateria.rend^(0.5))
             end
         end
 

@@ -54,13 +54,6 @@ module ModeloP1
             end
         end
 
-        # Restricción de rampa
-        # for generador in generadores
-        #     for bloque in 1:length(barras[1].demanda) - 1
-        #         @constraint(modelo, -generador.rampa <= pg[generador.id, bloque] - pg[generador.id, bloque + 1]  <= generador.rampa)
-        #     end
-        # end
-
         optimize!(modelo)
 
         return value.(pg), value.(θ), objective_value(modelo)
