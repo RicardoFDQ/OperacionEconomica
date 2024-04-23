@@ -39,17 +39,6 @@ module ModeloP1
         B = 1:9
         O = 1:6
 
-        for barra in barras
-            for bloque in 1:length(barra.demanda)
-                @constraint(modelo, 
-                sum(pg[generador.id, bloque] for generador in generadores_en_barras[barra.id]; init = 0)/100 
-                ==
-                (barra.demanda[bloque]/100)
-                + sum(linea.reactancia^(-1) * (θ[barra.id, bloque] - θ[linea.barra_fin, bloque]) for linea in lineas_out_barras[barra.id]; init = 0)
-                + sum(linea.reactancia^(-1) * (θ[barra.id, bloque] - θ[linea.barra_ini, bloque]) for linea in lineas_in_barras[barra.id]; init = 0))
-            end
-        end
-
         @constraint(modelo, bar[b in B, o in O], 
             sum(pg[generador.id, o] for generador in generadores_en_barras[barras[b].id]; init = 0)/100 
             ==
