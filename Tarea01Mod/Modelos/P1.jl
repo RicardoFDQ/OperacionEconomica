@@ -2,7 +2,7 @@
 # Módulo en donde se modela el problema de optimización de la pregunta 1.
 module ModeloP1
     export modelo_P1
-    using JuMP, Gurobi
+    using JuMP, Gurobi, Plots, CSV, DataFrames
 
     include(joinpath("../Elementos_SEP/elementos.jl"))
     include(joinpath("../Elementos_SEP/conjuntos.jl"))
@@ -95,4 +95,5 @@ module ModeloP1
         return value.(pg), value.(θ), objective_value(modelo)
 
     end
+
 end
