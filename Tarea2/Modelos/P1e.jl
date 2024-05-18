@@ -4,10 +4,11 @@ module ModeloP1e
     export modelo_P1e
     using JuMP, Gurobi
 
+    include(joinpath("../Escritura/Escritura_resultados.jl"))
     include(joinpath("../Elementos_SEP/elementos_118.jl"))
     include(joinpath("../Elementos_SEP/conjuntos_118.jl"))
 
-    using .ElementosSistema118, .ConjuntosSumatorias118
+    using .ElementosSistema118, .ConjuntosSumatorias118, .EscrituraExcel
 
     # Función del problema de optimización de la pregunta 1e
     function modelo_P1e()
@@ -141,6 +142,22 @@ module ModeloP1e
         costos_variables_totales = sum(value(dict_generadores_case118[g].costo * pg[g, t]) for g in ids_generadores_case118, t in 1:T)
         costos_start_up_totales = sum(value(dict_generadores_case118[g].costo_start_up * u[g, t]) for g in ids_generadores_case118, t in 1:T)
         costos_no_load_totales = sum(value(dict_generadores_case118[g].costo_no_load * w[g, t]) for g in ids_generadores_case118, t in 1:T)
+
+        # Demandas totales por hora
+        demanda_bloque_lista = [] 
+
+        for t in 1:T
+            demanda_bloque = 0
+            for barra in barras_case118
+                demanda_bloque += barra.demanda[t]
+            end
+            push!(demanda_bloque_lista, demanda_bloque)
+        end
+
+        direccion_excel_resultados = joinpath("Resultados/resultados.xlsx")
+
+        # Escribir resultados en un excel en la carpeta Resultados
+        guardar_resultados(direccion_excel_resultados, "Pregunta 1e", pg, w, demanda_bloque_lista, ids_generadores_case118, T)
 
 
         return pg, θ, u, v, w, objective_value(modelo), ids_generadores_case118, T, N,

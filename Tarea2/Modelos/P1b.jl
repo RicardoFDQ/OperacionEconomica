@@ -4,10 +4,11 @@ module ModeloP1b
     export modelo_P1b
     using JuMP, Gurobi
 
+    include(joinpath("../Escritura/Escritura_resultados.jl"))
     include(joinpath("../Elementos_SEP/elementos_014.jl"))
     include(joinpath("../Elementos_SEP/conjuntos_014.jl"))
 
-    using .ElementosSistema014, .ConjuntosSumatorias014
+    using .ElementosSistema014, .ConjuntosSumatorias014, .EscrituraExcel
 
     # Función del problema de optimización de la pregunta 1b
     function modelo_P1b()
@@ -88,7 +89,6 @@ module ModeloP1b
                 (barra.demanda[t]/100)
                 + sum(linea.reactancia^(-1) * (θ[n, t] - θ[linea.barra_fin, t]) for linea in lineas_out_barras_case014[n]; init = 0)
                 + sum(linea.reactancia^(-1) * (θ[n, t] - θ[linea.barra_ini, t]) for linea in lineas_in_barras_case014[n]; init = 0))
-
             end
         end
 
@@ -138,9 +138,26 @@ module ModeloP1b
 
         optimize!(modelo)
 
+        # Desglose de costos del sistema
         costos_variables_totales = sum(value(dict_generadores_case014[g].costo * pg[g, t]) for g in ids_generadores_case014, t in 1:T)
         costos_start_up_totales = sum(value(dict_generadores_case014[g].costo_start_up * u[g, t]) for g in ids_generadores_case014, t in 1:T)
         costos_no_load_totales = sum(value(dict_generadores_case014[g].costo_no_load * w[g, t]) for g in ids_generadores_case014, t in 1:T)
+
+        # Demandas totales por hora
+        demanda_bloque_lista = [] 
+
+        for t in 1:T
+            demanda_bloque = 0
+            for barra in barras_case014
+                demanda_bloque += barra.demanda[t]
+            end
+            push!(demanda_bloque_lista, demanda_bloque)
+        end
+
+        direccion_excel_resultados = joinpath("Resultados/resultados.xlsx")
+
+        # Escribir resultados en un excel en la carpeta Resultados
+        guardar_resultados(direccion_excel_resultados, "Pregunta 1b", pg, w, demanda_bloque_lista, ids_generadores_case014, T)
 
 
         return pg, θ, u, v, w, objective_value(modelo), ids_generadores_case014, T, N,

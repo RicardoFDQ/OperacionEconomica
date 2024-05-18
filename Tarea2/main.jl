@@ -4,6 +4,7 @@ include(joinpath("Modelos/P1c.jl"))
 include(joinpath("Modelos/P1e.jl"))
 include(joinpath("Display/display_resultados.jl"))
 
+
 using .ModeloP1b, .ModeloP1c, .ModeloP1e, .ImprimirResultados
 
 # Se almacenan los resultados de los modelos

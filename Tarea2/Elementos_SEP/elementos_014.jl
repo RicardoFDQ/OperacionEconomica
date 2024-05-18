@@ -11,7 +11,7 @@ module ElementosSistema014
 
     using .ModuloLecturaBarras, .ModuloLecturaGeneradores, .ModuloLecturaLineas, .ModuloLecturaRenovables
 
-    # Paths relativos de los archivos csv
+    # Paths relativos de los archivos excel
     dir = @__DIR__
 
     ruta_case014 = joinpath(dir, "..", "Parametros", "Case014.xlsx")
