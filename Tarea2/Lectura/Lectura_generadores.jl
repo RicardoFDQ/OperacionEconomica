@@ -15,6 +15,7 @@ module ModuloLecturaGeneradores
             if fila[1] == "END" || !startswith(fila[1], r"G")
                 break
             end
+            nombre = String(fila[1])
             id_generador = parse(Int, match(r"\d+", string(fila[1])).match)
             barra = parse(Int, match(r"\d+", string(fila[2])).match)
             p_max = fila[3]
@@ -28,7 +29,7 @@ module ModuloLecturaGeneradores
             costo_start_up = fila[13]
             costo_no_load = fila[14]
             costo = fila[15]
-            push!(generadores, Generador(id_generador, p_min, p_max, p_inicial, costo, costo_start_up, costo_no_load, 
+            push!(generadores, Generador(nombre, id_generador, p_min, p_max, p_inicial, costo, costo_start_up, costo_no_load, 
                                             minimum_up_time, minimum_down_time, estado_inicial, rampa_start, rampa, barra))
         end
         return generadores

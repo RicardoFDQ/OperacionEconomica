@@ -2,7 +2,7 @@
 # Módulo donde se generan las listas con las structs de los elementos del sistema case014
 module ElementosSistema014
     export  barras_case014, generadores_case014, lineas_case014, renovables_case014, 
-            ids_generadores_case014, dict_generadores_case014
+            ids_generadores_case014, dict_generadores_case014, ids_renovables_case014, dict_renovables_case014
     
     include(joinpath("..", "Lectura", "Lectura_barras.jl"))
     include(joinpath("..", "Lectura", "Lectura_generadores.jl"))
@@ -24,7 +24,9 @@ module ElementosSistema014
     
     # Elementos adicionales del sistema case014
     ids_generadores_case014 = [generador.id for generador in generadores_case014]
+    ids_renovables_case014 = [renovable.id for renovable in renovables_case014]
     dict_generadores_case014 = Dict(gen.id => gen for gen in generadores_case014)
+    dict_renovables_case014 = Dict(gen.id => gen for gen in renovables_case014)
 
     
 

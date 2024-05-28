@@ -13,6 +13,7 @@ module ModuloStructs
 
     # Struct que representa a los generadores convencionales
     struct Generador
+        nombre::String
         id::Int64
         p_min::Float64
         p_max::Float64
@@ -30,9 +31,17 @@ module ModuloStructs
 
     # Struct que representa a plantas renovables
     struct Renovable
-        id::String
+        nombre::String
+        id::Int64
         barra::Int64
-        p_generada::Vector{Float64}
+        p_pronosticada::Vector{Float64}
+        p_min::Float64
+        p_inicial::Float64
+        rampa::Float64
+        rampa_start::Float64
+        minimum_up_time::Int64
+        minimum_down_time::Int64
+        estado_inicial::Int64
     end
 
     # Struct que representa a las líneas
@@ -51,11 +60,11 @@ module ModuloStructs
     # Sobrecarga de la función show para Barra
     Base.show(io::IO, b::Barra) = print(io, "Barra(id=$(b.id), demanda=$(b.demanda))")
     # Sobrecarga de la función show para Generador
-    Base.show(io::IO, g::Generador) = print(io, "Generador(id=$(g.id), p_min=$(g.p_min), p_max=$(g.p_max), p_inicial=$(g.p_inicial), costo=$(g.costo), costo_start_up=$(g.costo_start_up), costo_no_load=$(g.costo_no_load), minimum_up_time=$(g.minimum_up_time), minimum_down_time=$(g.minimum_down_time), estado_inicial=$(g.estado_inicial), rampa_start=$(g.rampa_start), rampa=$(g.rampa), barra=$(g.barra))")
+    Base.show(io::IO, g::Generador) = print(io, "Generador(nombre=$(g.nombre) ,id=$(g.id), p_min=$(g.p_min), p_max=$(g.p_max), p_inicial=$(g.p_inicial), costo=$(g.costo), costo_start_up=$(g.costo_start_up), costo_no_load=$(g.costo_no_load), minimum_up_time=$(g.minimum_up_time), minimum_down_time=$(g.minimum_down_time), estado_inicial=$(g.estado_inicial), rampa_start=$(g.rampa_start), rampa=$(g.rampa), barra=$(g.barra))")
     # Sobrecarga de la función show para Linea
     Base.show(io::IO, l::Linea) = print(io, "Linea(id=$(l.id), barra_ini=$(l.barra_ini), barra_fin=$(l.barra_fin), p_max=$(l.p_max), reactancia=$(l.reactancia))")
     # Sobrecarga de la función show para Renovable
-    Base.show(io::IO, r::Renovable) = print(io, "Renovable(id=\"$(r.id)\", barra=$(r.barra), p_generada=$(r.p_generada))")
+    Base.show(io::IO, r::Renovable) = print(io, "Renovable(nombre=$(r.nombre), barra=$(r.barra), id=$(r.id), p_pronosticada=$(r.p_pronosticada), p_min=$(r.p_min), p_inicial=$(r.p_inicial), rampa=$(r.rampa), rampa_start=$(r.rampa_start), minimum_up_time=$(r.minimum_up_time), minimum_down_time=$(r.minimum_down_time), estado_inicial=$(r.estado_inicial))")
     
     # Sobrecarga de la función show para un Array de Barra
     Base.show(io::IO, barras::Array{ModuloStructs.Barra}) = begin
@@ -98,7 +107,7 @@ module ModuloStructs
     Base.show(io::IO, renovables::Array{ModuloStructs.Renovable}) = begin
         print(io, "[")
         for (i, renovable) in enumerate(renovables)
-            print(io, "Renovable(id=\"$(renovable.id)\", barra=$(renovable.barra), p_generada=$(renovable.p_generada))")
+            print(io, "Renovable(nombre=\"$(renovable.nombre)\", barra=\"$(renovable.barra)\", id=\"$(renovable.id)\", p_pronosticada=\"$(renovable.p_pronosticada)\", p_min=\"$(renovable.p_min)\", p_inicial=\"$(renovable.p_inicial)\", rampa=\"$(renovable.rampa)\", rampa_start=\"$(renovable.rampa_start)\", minimum_up_time=\"$(renovable.minimum_up_time)\", minimum_down_time=\"$(renovable.minimum_down_time)\", estado_inicial=\"$(renovable.estado_inicial)\")")
             if i < length(renovables)
                 print(io, ", ")
             end

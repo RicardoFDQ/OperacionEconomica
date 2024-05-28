@@ -1,5 +1,5 @@
 
-# Módulo en donde se modela el problema de optimización de la pregunta 1.
+# Módulo en donde se modela el problema de optimización de la pregunta 1b.
 module ModeloP1b
     export modelo_P1b
     using JuMP, Gurobi
@@ -37,20 +37,32 @@ module ModeloP1b
         #------------------------------------------------------------------------------
         # Variables de decisión
 
-        # Potencia generada por generadores en los bloques [MW]
+        # Potencia generada por generadores convencionales en los bloques [MW]
         @variable(modelo, pg[g = ids_generadores_case014, t = 0:T])
+
+        # Potencia generada por generadores renovables en los bloques [MW]
+        @variable(modelo, pr[g = ids_renovables_case014, t = 0:T])
         
         # Ángulos de las barras en los bloques [rad]
         @variable(modelo, -π <= θ[i = 1:N, t = 1:T] <= π)
 
-        # Variable binaria que enciende una unidad de generación 
+        # Variable binaria que enciende una unidad de generación convencional
         @variable(modelo, u[g = ids_generadores_case014, t = 1:T], Bin)
 
-        # Variable binaria que apaga una unidad de generación 
+        # Variable binaria que enciende una unidad de generación renovable
+        @variable(modelo, ur[g = ids_renovables_case014, t = 1:T], Bin)
+
+        # Variable binaria que apaga una unidad de generación convencional
         @variable(modelo, v[g = ids_generadores_case014, t = 1:T], Bin)
 
-        # Variable binaria que indica el estado ON/OFF de una unidad de generación
+        # Variable binaria que apaga una unidad de generación renovable
+        @variable(modelo, vr[g = ids_renovables_case014, t = 1:T], Bin)
+
+        # Variable binaria que indica el estado ON/OFF de una unidad de generación convencional
         @variable(modelo, w[g = ids_generadores_case014, t = dict_generadores_case014[g].estado_inicial:T], Bin)
+
+        # Variable binaria que indica el estado ON/OFF de una unidad de generación renovable
+        @variable(modelo, wr[g = ids_renovables_case014, t = dict_renovables_case014[g].estado_inicial:T], Bin)
 
         #------------------------------------------------------------------------------
         # Función objetivo
@@ -60,16 +72,29 @@ module ModeloP1b
         #------------------------------------------------------------------------------
         # Restricciones
 
-        # Potencias iniciales de generadores 
+        # Potencias iniciales de generadores convencionales
         for generador in generadores_case014
             g = generador.id
             @constraint(modelo, pg[g, 0] == generador.p_inicial)
         end
+
+        # Potencias iniciales de generadores renovables
+        for renovable in renovables_case014
+            g = renovable.id
+            @constraint(modelo, pr[g, 0] == renovable.p_inicial)
+        end
         
-        # Estado previo de generadores (Todos en estado OFF)
+        # Estado previo de generadores convencionales (Todos en estado OFF)
         for g in ids_generadores_case014
             for t in dict_generadores_case014[g].estado_inicial:0
                 @constraint(modelo, w[g, t] == 0)
+            end
+        end
+
+        # Estado previo de generadores renovables (Todos en estado OFF)
+        for g in ids_renovables_case014
+            for t in dict_renovables_case014[g].estado_inicial:0
+                @constraint(modelo, wr[g, t] == 0)
             end
         end
         
@@ -84,7 +109,7 @@ module ModeloP1b
                 n = barra.id
                 @constraint(modelo,
                 sum(pg[generador.id, t] for generador in generadores_en_barras_case014[n]; init = 0)/100
-                + sum(renovable.p_generada[t] for renovable in renovables_en_barras_case014[n]; init = 0)/100
+                + sum(pr[renovable.id, t] for renovable in renovables_en_barras_case014[n]; init = 0)/100
                 ==
                 (barra.demanda[t]/100)
                 + sum(linea.reactancia^(-1) * (θ[n, t] - θ[linea.barra_fin, t]) for linea in lineas_out_barras_case014[n]; init = 0)
@@ -99,7 +124,7 @@ module ModeloP1b
             end
         end
 
-        # Restricción límites de generación
+        # Restricción límites de generación de generadores convencionales
         for generador in generadores_case014
             for t in 1:T
                 g = generador.id
@@ -108,7 +133,16 @@ module ModeloP1b
             end
         end
 
-        # Restricción de relación entre estados binarios
+        # Restricción límites de generación de generadores renovables
+        for renovable in renovables_case014
+            for t in 1:T
+                g = renovable.id
+                @constraint(modelo, dict_renovables_case014[g].p_min * wr[g, t] <= pr[g, t])
+                @constraint(modelo, pr[g, t] <= dict_renovables_case014[g].p_pronosticada[t] * wr[g, t])
+            end
+        end
+
+        # Restricción de relación entre estados binarios de generadores convencionales
         for generador in generadores_case014
             for t in 1:T
                 g = generador.id
@@ -116,7 +150,15 @@ module ModeloP1b
             end
         end
 
-        # Restricción de rampa
+        # Restricción de relación entre estados binarios de generadores renovables
+        for renovable in renovables_case014
+            for t in 1:T
+                g = renovable.id
+                @constraint(modelo, ur[g, t] - vr[g, t] == wr[g, t] - wr[g, t-1])
+            end
+        end
+
+        # Restricción de rampa de generadores convencionales
         for generador in generadores_case014
             for t in 1:T
                 g = generador.id
@@ -125,7 +167,16 @@ module ModeloP1b
             end
         end
 
-        # Restricción tiempo mínimo de encendido y de apagado
+        # Restricción de rampa de generadores renovables
+        for renovable in renovables_case014
+            for t in 1:T
+                g = renovable.id
+                @constraint(modelo, -renovable.rampa <= pr[g, t] - pr[g, t-1])
+                @constraint(modelo, pr[g, t] - pr[g, t-1] <= renovable.rampa + renovable.rampa_start * ur[g, t])
+            end
+        end
+
+        # Restricción tiempo mínimo de encendido y de apagado de generadores convencionales
         for generador in generadores_case014
             for t in 1:T
                 g = generador.id
@@ -133,6 +184,17 @@ module ModeloP1b
                 m_down = generador.minimum_down_time
                 @constraint(modelo, sum(w[g, k] for k in t-m_up:t-1) >= m_up * v[g, t])
                 @constraint(modelo, sum((1 - w[g, k]) for k in t-m_down:t-1) >= m_down * u[g, t])
+            end
+        end
+
+        # Restricción tiempo mínimo de encendido y de apagado de generadores renovables
+        for renovable in renovables_case014
+            for t in 1:T
+                g = renovable.id
+                m_up = renovable.minimum_up_time
+                m_down = renovable.minimum_down_time
+                @constraint(modelo, sum(wr[g, k] for k in t-m_up:t-1) >= m_up * vr[g, t])
+                @constraint(modelo, sum((1 - wr[g, k]) for k in t-m_down:t-1) >= m_down * ur[g, t])
             end
         end
 
@@ -157,10 +219,10 @@ module ModeloP1b
         direccion_excel_resultados = joinpath("Resultados/resultados.xlsx")
 
         # Escribir resultados en un excel en la carpeta Resultados
-        guardar_resultados(direccion_excel_resultados, "Pregunta 1b", pg, w, demanda_bloque_lista, ids_generadores_case014, T)
+        guardar_resultados(direccion_excel_resultados, "Pregunta 1b", pg, pr, demanda_bloque_lista, ids_generadores_case014, ids_renovables_case014, T)
 
 
-        return pg, θ, u, v, w, objective_value(modelo), ids_generadores_case014, T, N,
+        return pg, pr, θ, u, ur, v, vr, w, wr, objective_value(modelo), ids_generadores_case014, ids_renovables_case014, T, N,
                costos_variables_totales, costos_start_up_totales, costos_no_load_totales
 
     end
