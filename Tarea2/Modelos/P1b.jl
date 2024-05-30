@@ -216,10 +216,11 @@ module ModeloP1b
             push!(demanda_bloque_lista, demanda_bloque)
         end
 
-        direccion_excel_resultados = joinpath("Resultados/resultados.xlsx")
+        direccion_excel_resultados = joinpath("Resultados/resultados_P1.xlsx")
 
         # Escribir resultados en un excel en la carpeta Resultados
-        guardar_resultados(direccion_excel_resultados, "Pregunta 1b", pg, pr, demanda_bloque_lista, ids_generadores_case014, ids_renovables_case014, T)
+        guardar_resultados(direccion_excel_resultados, "Pregunta 1b", pg, pr, demanda_bloque_lista, ids_generadores_case014, 
+                            ids_renovables_case014, T, costos_variables_totales, costos_start_up_totales, costos_no_load_totales)
 
 
         return pg, pr, θ, u, ur, v, vr, w, wr, objective_value(modelo), ids_generadores_case014, ids_renovables_case014, T, N,

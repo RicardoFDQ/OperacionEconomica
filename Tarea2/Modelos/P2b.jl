@@ -5,13 +5,23 @@ module ModeloP2b
     using JuMP, Gurobi
 
     include(joinpath("../Escritura/Escritura_resultados.jl"))
+    include(joinpath("../Montecarlo/montecarlo.jl"))
     include(joinpath("../Elementos_SEP/elementos_118.jl"))
     include(joinpath("../Elementos_SEP/conjuntos_118.jl"))
 
-    using .ElementosSistema118, .ConjuntosSumatorias118, .EscrituraExcel
+    using .ElementosSistema118, .ConjuntosSumatorias118, .Montecarlo, .EscrituraExcel
+
+    reservas_90, reservas_99, _ = obtener_datos_MC()
 
     # Función del problema de optimización de la pregunta 2b
-    function modelo_P2b(reservas)
+    function modelo_P2b(reservas_deseadas)
+
+        # Se definen las reservas a utilizar
+        if reservas_deseadas == 90
+            reservas = reservas_90
+        elseif reservas_deseadas == 99
+            reservas = reservas_99
+        end
         
         #------------------------------------------------------------------------------
         modelo = Model(Gurobi.Optimizer)
@@ -42,7 +52,13 @@ module ModeloP2b
 
         # Potencia generada por generadores renovables en los bloques [MW]
         @variable(modelo, pr[g = ids_renovables_case118, t = 0:T])
-        
+
+        # Rerservas hacia arriba generadores convencionales
+        @variable(modelo, r_up[g = ids_generadores_case118, t = 1:T] >= 0)
+
+        # Rerservas hacia abajo generadores convencionales
+        @variable(modelo, r_down[g = ids_generadores_case118, t = 1:T] >= 0)
+
         # Ángulos de las barras en los bloques [rad]
         @variable(modelo, -π <= θ[i = 1:N, t = 1:T] <= π)
 
@@ -199,17 +215,48 @@ module ModeloP2b
         end
 
         # Restricción de reservas
-        for t in 1:T
-            @constraint(modelo, sum(generador.p_max * w[g, t] for generador in generadores_case118) >= sum(barra.demanda[t] for barra in barras_case118) + reservas[t])
-            @constraint(modelo, sum(generador.p_min * w[g, t] for generador in generadores_case118) <= sum(barra.demanda[t] for barra in barras_case118) - reservas[t])
+        for t in 1:T 
+            for generador in generadores_case118
+                g = generador.id
+                # Reservas hacia arriba
+                @constraint(modelo, pg[g, t] + r_up[g, t] <= dict_generadores_case118[g].p_max * w[g, t])        
+                # Reservas hacia abajo
+                @constraint(modelo, pg[g, t] - r_down[g, t] >= dict_generadores_case118[g].p_min * w[g, t])
+            end
+            # Cumplimiento reservas totales
+            @constraint(modelo, sum(r_up[generador.id, t] for generador in generadores_case118) >= reservas[t])
+            @constraint(modelo, sum(r_down[generador.id, t] for generador in generadores_case118) >= reservas[t])
         end
-
+        
         optimize!(modelo)
 
+        # Desglose de costos del sistema
+        costos_variables_totales = sum(value(dict_generadores_case118[g].costo * pg[g, t]) for g in ids_generadores_case118, t in 1:T)
+        costos_start_up_totales = sum(value(dict_generadores_case118[g].costo_start_up * u[g, t]) for g in ids_generadores_case118, t in 1:T)
+        costos_no_load_totales = sum(value(dict_generadores_case118[g].costo_no_load * w[g, t]) for g in ids_generadores_case118, t in 1:T)
+
+        # Demandas totales por hora
+        demanda_bloque_lista = [] 
+
+        for t in 1:T
+            demanda_bloque = 0
+            for barra in barras_case118
+                demanda_bloque += barra.demanda[t]
+            end
+            push!(demanda_bloque_lista, demanda_bloque)
+        end
+
+        direccion_excel_resultados = joinpath("Resultados/resultados_P2b.xlsx")
+
+        # Escribir resultados en un excel en la carpeta Resultados
+        guardar_resultados(direccion_excel_resultados, "Reservas " * string(reservas_deseadas), pg, pr, demanda_bloque_lista, ids_generadores_case118, 
+                            ids_renovables_case118, T, costos_variables_totales, costos_start_up_totales, costos_no_load_totales)
 
         return pg, pr, θ, u, ur, v, vr, w, wr, objective_value(modelo), ids_generadores_case118, ids_renovables_case118, T, N,
                 costos_variables_totales, costos_start_up_totales, costos_no_load_totales
     end
+    
+
 end
 
 

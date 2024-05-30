@@ -30,7 +30,7 @@ module ModuloStructs
     end
 
     # Struct que representa a plantas renovables
-    struct Renovable
+    mutable struct Renovable
         nombre::String
         id::Int64
         barra::Int64

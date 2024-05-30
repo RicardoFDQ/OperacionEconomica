@@ -21,7 +21,8 @@ module ElementosSistema014
     generadores_case014 = generadores_sistema(ruta_case014)
     lineas_case014 = lineas_sistema(ruta_case014)
     renovables_case014 = renovables_sistema(ruta_case014)
-    
+
+
     # Elementos adicionales del sistema case014
     ids_generadores_case014 = [generador.id for generador in generadores_case014]
     ids_renovables_case014 = [renovable.id for renovable in renovables_case014]

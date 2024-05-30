@@ -23,12 +23,12 @@ module ImprimirResultados
         println("Potencia generada por generadores renovables en los bloques [MW]:")
         println("--------------------------------------------------------")
 
-        for g in ids_renovables
-            for t in 1:T
-                println("pr[", g, ",", t, "] = ", value.(pr[g, t]))
-            end
-            println()
-        end
+        # for g in ids_renovables
+        #     for t in 1:T
+        #         println("pr[", g, ",", t, "] = ", value.(pr[g, t]))
+        #     end
+        #     println()
+        # end
 
         println("--------------------------------------------------------")
         println("Ángulos de las barras en los bloques [rad]:")
@@ -55,12 +55,12 @@ module ImprimirResultados
         println("Estado de encendido de las unidades de generación renovables:")
         println("--------------------------------------------------------")
 
-        for g in ids_renovables
-            for t in 1:T
-                println("ur[", g, ",", t, "] = ", value.(ur[g, t]))
-            end
-            println()
-        end
+        # for g in ids_renovables
+        #     for t in 1:T
+        #         println("ur[", g, ",", t, "] = ", value.(ur[g, t]))
+        #     end
+        #     println()
+        # end
 
         println("--------------------------------------------------------")
         println("Estado de apagado de las unidades de generación convencionales:")
@@ -76,12 +76,12 @@ module ImprimirResultados
         println("Estado de apagado de las unidades de generación renovables:")
         println("--------------------------------------------------------")
 
-        for g in ids_renovables
-            for t in 1:T
-                println("vr[", g, ",", t, "] = ", value.(vr[g, t]))
-            end
-            println()
-        end
+        # for g in ids_renovables
+        #     for t in 1:T
+        #         println("vr[", g, ",", t, "] = ", value.(vr[g, t]))
+        #     end
+        #     println()
+        # end
 
         println("--------------------------------------------------------")
         println("Estado ON/OFF de las unidades de generación convencionales:")
@@ -98,12 +98,12 @@ module ImprimirResultados
         println("Estado ON/OFF de las unidades de generación renovables:")
         println("--------------------------------------------------------")
         
-        for g in ids_renovables
-            for t in 1:T
-                println("wr[", g, ",", t, "] = ", value.(wr[g, t]))
-            end
-            println()
-        end
+        # for g in ids_renovables
+        #     for t in 1:T
+        #         println("wr[", g, ",", t, "] = ", value.(wr[g, t]))
+        #     end
+        #     println()
+        # end
 
         println("--------------------------------------------------------")
         println("Costo total del sistema [\$]: ", fo)
