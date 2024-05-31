@@ -2,16 +2,21 @@
 # Módulo en donde se modela el problema de optimización de la pregunta 2b.
 module ModeloP2b
     export modelo_P2b
-    using JuMP, Gurobi
+    using JuMP, Gurobi, XLSX
 
     include(joinpath("../Escritura/Escritura_resultados.jl"))
     include(joinpath("../Montecarlo/montecarlo.jl"))
+    include(joinpath("../Montecarlo/graficarEscenarios.jl"))
     include(joinpath("../Elementos_SEP/elementos_118.jl"))
     include(joinpath("../Elementos_SEP/conjuntos_118.jl"))
 
-    using .ElementosSistema118, .ConjuntosSumatorias118, .Montecarlo, .EscrituraExcel
+    using .ElementosSistema118, .ConjuntosSumatorias118, .Montecarlo, .EscrituraExcel, .GraficaEsc
 
+    # Se obtienen el valor de las reservas para los interalos de confianza del 90% y 99%
     reservas_90, reservas_99, _ = obtener_datos_MC()
+
+    # Se grafican los resultados de la generación renovables de los escenarios
+    graficarMC()
 
     # Función del problema de optimización de la pregunta 2b
     function modelo_P2b(reservas_deseadas)
@@ -22,7 +27,7 @@ module ModeloP2b
         elseif reservas_deseadas == 99
             reservas = reservas_99
         end
-        
+
         #------------------------------------------------------------------------------
         modelo = Model(Gurobi.Optimizer)
 
@@ -224,8 +229,8 @@ module ModeloP2b
                 @constraint(modelo, pg[g, t] - r_down[g, t] >= dict_generadores_case118[g].p_min * w[g, t])
             end
             # Cumplimiento reservas totales
-            @constraint(modelo, sum(r_up[generador.id, t] for generador in generadores_case118) >= reservas[t])
-            @constraint(modelo, sum(r_down[generador.id, t] for generador in generadores_case118) >= reservas[t])
+            @constraint(modelo, sum(r_up[generador.id, t] * w[generador.id, t] for generador in generadores_case118) >= reservas[t])
+            @constraint(modelo, sum(r_down[generador.id, t] * w[generador.id,t] for generador in generadores_case118) >= reservas[t])
         end
         
         optimize!(modelo)
@@ -237,7 +242,6 @@ module ModeloP2b
 
         # Demandas totales por hora
         demanda_bloque_lista = [] 
-
         for t in 1:T
             demanda_bloque = 0
             for barra in barras_case118
@@ -246,9 +250,8 @@ module ModeloP2b
             push!(demanda_bloque_lista, demanda_bloque)
         end
 
-        direccion_excel_resultados = joinpath("Resultados/resultados_P2b.xlsx")
-
         # Escribir resultados en un excel en la carpeta Resultados
+        direccion_excel_resultados = joinpath("Resultados/resultados_P1.xlsx")
         guardar_resultados(direccion_excel_resultados, "Reservas " * string(reservas_deseadas), pg, pr, demanda_bloque_lista, ids_generadores_case118, 
                             ids_renovables_case118, T, costos_variables_totales, costos_start_up_totales, costos_no_load_totales)
 

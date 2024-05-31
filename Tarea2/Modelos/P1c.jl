@@ -178,13 +178,13 @@ module ModeloP1c
 
         optimize!(modelo)
 
+        # Desglose de costos del sistema
         costos_variables_totales = sum(value(dict_generadores_case014[g].costo * pg[g, t]) for g in ids_generadores_case014, t in 1:T)
         costos_start_up_totales = sum(value(dict_generadores_case014[g].costo_start_up * u[g, t]) for g in ids_generadores_case014, t in 1:T)
         costos_no_load_totales = sum(value(dict_generadores_case014[g].costo_no_load * w[g, t]) for g in ids_generadores_case014, t in 1:T)
 
         # Demandas totales por hora
         demanda_bloque_lista = [] 
-
         for t in 1:T
             demanda_bloque = 0
             for barra in barras_case014
@@ -193,9 +193,8 @@ module ModeloP1c
             push!(demanda_bloque_lista, demanda_bloque)
         end
 
-        direccion_excel_resultados = joinpath("Resultados/resultados_P1.xlsx")
-
         # Escribir resultados en un excel en la carpeta Resultados
+        direccion_excel_resultados = joinpath("Resultados/resultados_P1.xlsx")
         guardar_resultados(direccion_excel_resultados, "Pregunta 1c", pg, pr, demanda_bloque_lista, ids_generadores_case014, 
                             ids_renovables_case014, T, costos_variables_totales, costos_start_up_totales, costos_no_load_totales)
 
