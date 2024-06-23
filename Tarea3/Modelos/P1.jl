@@ -130,26 +130,26 @@ module ModeloP1
         # Print Resultados Barridos
 
         # Barrido Forward 1
-        imprimir_resultados("Forward 1", 1, 1, resultado_forward1_etapa1_escenario1)
-        imprimir_resultados("Forward 1", 2, 1, resultado_forward1_etapa2_escenario1)
-        imprimir_resultados("Forward 1", 2, 2, resultado_forward1_etapa2_escenario2)
-        imprimir_resultados("Forward 1", 3, 1, resultado_forward1_etapa3_escenario1)
-        imprimir_resultados("Forward 1", 3, 2, resultado_forward1_etapa3_escenario2)
-        imprimir_resultados("Forward 1", 3, 3, resultado_forward1_etapa3_escenario3)
-        imprimir_resultados("Forward 1", 3, 4, resultado_forward1_etapa3_escenario4)
+        imprimir_resultados_p1("Forward 1", 1, 1, resultado_forward1_etapa1_escenario1)
+        imprimir_resultados_p1("Forward 1", 2, 1, resultado_forward1_etapa2_escenario1)
+        imprimir_resultados_p1("Forward 1", 2, 2, resultado_forward1_etapa2_escenario2)
+        imprimir_resultados_p1("Forward 1", 3, 1, resultado_forward1_etapa3_escenario1)
+        imprimir_resultados_p1("Forward 1", 3, 2, resultado_forward1_etapa3_escenario2)
+        imprimir_resultados_p1("Forward 1", 3, 3, resultado_forward1_etapa3_escenario3)
+        imprimir_resultados_p1("Forward 1", 3, 4, resultado_forward1_etapa3_escenario4)
 
         # Barrido Backward 1
-        imprimir_resultados("Backward 1", 1, 1, resultado_backward1_etapa1_escenario1)
-        imprimir_resultados("Backward 1", 2, 1, resultado_backward1_etapa2_escenario1)
-        imprimir_resultados("Backward 1", 2, 2, resultado_backward1_etapa2_escenario2)
+        imprimir_resultados_p1("Backward 1", 1, 1, resultado_backward1_etapa1_escenario1)
+        imprimir_resultados_p1("Backward 1", 2, 1, resultado_backward1_etapa2_escenario1)
+        imprimir_resultados_p1("Backward 1", 2, 2, resultado_backward1_etapa2_escenario2)
 
         # Barrido Forward 2
-        imprimir_resultados("Forward 2", 1, 1, resultado_forward2_etapa1_escenario1)
-        imprimir_resultados("Forward 2", 2, 1, resultado_forward2_etapa2_escenario1)
-        imprimir_resultados("Forward 2", 2, 2, resultado_forward2_etapa2_escenario2)
-        imprimir_resultados("Forward 2", 3, 1, resultado_forward2_etapa3_escenario1)
-        imprimir_resultados("Forward 2", 3, 2, resultado_forward2_etapa3_escenario2)
-        imprimir_resultados("Forward 2", 3, 3, resultado_forward2_etapa3_escenario3)
-        imprimir_resultados("Forward 2", 3, 4, resultado_forward2_etapa3_escenario4)
+        imprimir_resultados_p1("Forward 2", 1, 1, resultado_forward2_etapa1_escenario1)
+        imprimir_resultados_p1("Forward 2", 2, 1, resultado_forward2_etapa2_escenario1)
+        imprimir_resultados_p1("Forward 2", 2, 2, resultado_forward2_etapa2_escenario2)
+        imprimir_resultados_p1("Forward 2", 3, 1, resultado_forward2_etapa3_escenario1)
+        imprimir_resultados_p1("Forward 2", 3, 2, resultado_forward2_etapa3_escenario2)
+        imprimir_resultados_p1("Forward 2", 3, 3, resultado_forward2_etapa3_escenario3)
+        imprimir_resultados_p1("Forward 2", 3, 4, resultado_forward2_etapa3_escenario4)
     end
 end
