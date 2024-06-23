@@ -5,8 +5,9 @@ module ModeloP2
     using SDDP, JuMP, Gurobi, Plots, Random
     
     include(joinpath("../Display/display_resultados.jl"))
+    include(joinpath("../Escritura/escritura_resultados.jl"))
 
-    using .ImprimirResultados
+    using .ImprimirResultados, .EscrituraExcel
 
     function subproblem_builder(subproblem::Model, node::Int)
 
@@ -79,6 +80,7 @@ module ModeloP2
     
         cota_inferior, cota_superior = cotas(model, simulations)
         costo_futuro, costo_marginal = costos(model, agua_almacenada_esperada[1])
+        costo_marginal = first(costo_marginal)[2]
     
         return agua_almacenada_esperada, cota_inferior, cota_superior, costo_futuro, costo_marginal
     end
@@ -157,11 +159,16 @@ module ModeloP2
         resultados_modelo_N_50 = crear_modelo(50, graficos)
         resultados_modelo_N_100 = crear_modelo(100, graficos)
         savefig(joinpath(@__DIR__, "..", "Graficos", "evolucion_agua.png"))
+
+        guardar_resultados(joinpath("Escritura/resultados_P2.xlsx"), "N=5", resultados_modelo_N_5)
+        guardar_resultados(joinpath("Escritura/resultados_P2.xlsx"), "N=20", resultados_modelo_N_20)
+        guardar_resultados(joinpath("Escritura/resultados_P2.xlsx"), "N=50", resultados_modelo_N_50)
+        guardar_resultados(joinpath("Escritura/resultados_P2.xlsx"), "N=100", resultados_modelo_N_100)
+
+        
+        return resultados_modelo_N_5, resultados_modelo_N_20, resultados_modelo_N_50, resultados_modelo_N_100
     
-        imprimir_resultados_p2(5, resultados_modelo_N_5)
-        imprimir_resultados_p2(20, resultados_modelo_N_20)
-        imprimir_resultados_p2(50, resultados_modelo_N_50)
-        imprimir_resultados_p2(100, resultados_modelo_N_100)
+        
     
     end
 
